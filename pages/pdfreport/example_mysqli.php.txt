@@ -1,0 +1,28 @@
+<?php
+// Assumendo che tu abbia già una connessione MySQLi
+$mysqli = new mysqli("localhost", "your_user", "your_password", "your_database");
+
+if ($mysqli->connect_error) {
+    die("MySQLi Connection Error: " . $mysqli->connect_error);
+}
+
+$query = "SELECT * FROM orders WHERE customer_id = ?";
+$args = [101]; // ID del cliente
+
+$dataProvider = new AlienProject\PDFReport\MySQLiDataProvider($mysqli, $query, $args);
+
+$orderSection = new AlienProject\PDFReport\PDFReportSection(
+    'orders',
+    $dataProvider,
+    null // o un'istanza di PDFPageSettings
+);
+
+$orderSection->ExecuteQuery();
+
+while (!$orderSection->EndOfData()) {
+    $row = $orderSection->row;
+    echo "Order ID: " . $row['id'] . ", Total: " . $row['total_amount'] . "<br>";
+    $orderSection->NextRecord();
+}
+
+$mysqli->close();

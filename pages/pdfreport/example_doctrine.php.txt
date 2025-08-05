@@ -1,0 +1,61 @@
+<?php
+// src/Service/ReportGenerator.php
+namespace App\Service;
+
+use AlienProject\PDFReport\PDFReportSection;
+use AlienProject\PDFReport\DoctrineDataProvider;
+use App\Entity\InvoiceLine; // Your Doctrine Entity
+use Doctrine\ORM\EntityManagerInterface;
+use TCPDF; // Assuming you have TCPDF configured
+
+class ReportGenerator
+{
+    private EntityManagerInterface $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
+    public function generateInvoiceReport(int $invoiceId): TCPDF
+    {
+        // ... (instantiate TCPDF here, or pass it)
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        // ... other TCPDF setup
+
+        // 1. Create a QueryBuilder for your data
+        $queryBuilder = $this->entityManager->getRepository(InvoiceLine::class)
+            ->createQueryBuilder('il')
+            ->where('il.invoice = :invoiceId')
+            ->setParameter('invoiceId', $invoiceId);
+
+        // 2. Create the DoctrineDataProvider
+        $dataProvider = new DoctrineDataProvider($queryBuilder);
+
+        // 3. Instantiate PDFReportSection with the data provider
+        $invoiceLinesSection = new PDFReportSection(
+            'invoiceLines',
+            $dataProvider,
+            null // Or your PDFPageSettings object if applicable
+        );
+
+        // 4. Use the section in your report generation logic
+        $invoiceLinesSection->ExecuteQuery();
+
+        while (!$invoiceLinesSection->EndOfData()) {
+            $row = $invoiceLinesSection->row; // Get the current row data
+            // Render the row in your PDF using TCPDF
+            $pdf->Text(10, $invoiceLinesSection->CurrentY(), 'Product: ' . $row['productName'] . ', Qty: ' . $row['quantity']);
+            $invoiceLinesSection->NextRecord();
+
+            if ($invoiceLinesSection->EndOfPage() && !$invoiceLinesSection->EndOfData()) {
+                $pdf->AddPage();
+                $invoiceLinesSection->ResetPageBreak();
+                // You might need to adjust Y position for the new page start
+            }
+        }
+
+        return $pdf;
+    }
+}

@@ -1,0 +1,32 @@
+<?php
+// Assumendo che tu abbia già una connessione PDO
+$dsn = 'mysql:host=localhost;dbname=your_database';
+$username = 'your_user';
+$password = 'your_password';
+
+try {
+    $pdo = new PDO($dsn, $username, $password);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC); // Default fetch mode to assoc
+} catch (\PDOException $e) {
+    die("PDO Connection Error: " . $e->getMessage());
+}
+
+$query = "SELECT * FROM products WHERE category_id = ?";
+$args = [1]; // ID della categoria
+
+$dataProvider = new AlienProject\PDFReport\PDODateProvider($pdo, $query, $args);
+
+$productSection = new AlienProject\PDFReport\PDFReportSection(
+    'products',
+    $dataProvider,
+    null // o un'istanza di PDFPageSettings
+);
+
+$productSection->ExecuteQuery();
+
+while (!$productSection->EndOfData()) {
+    $row = $productSection->row;
+    echo "Product: " . $row['name'] . ", Price: " . $row['price'] . "<br>";
+    $productSection->NextRecord();
+}

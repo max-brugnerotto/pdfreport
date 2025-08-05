@@ -1,0 +1,51 @@
+<?php
+// app/Services/ReportGenerator.php
+namespace App\Services;
+
+use AlienProject\PDFReport\PDFReportSection;
+use AlienProject\PDFReport\EloquentDataProvider;
+use App\Models\InvoiceLine; // Your Eloquent Model
+use TCPDF; // Assuming you have TCPDF configured
+
+class ReportGenerator
+{
+    public function generateInvoiceReport(int $invoiceId): TCPDF
+    {
+        // ... (instantiate TCPDF here, or pass it)
+        $pdf = new TCPDF();
+        $pdf->AddPage();
+        // ... other TCPDF setup
+
+        // 1. Create an Eloquent Query Builder for your data
+        $queryBuilder = InvoiceLine::query()
+            ->where('invoice_id', $invoiceId);
+
+        // 2. Create the EloquentDataProvider
+        $dataProvider = new EloquentDataProvider($queryBuilder);
+
+        // 3. Instantiate PDFReportSection with the data provider
+        $invoiceLinesSection = new PDFReportSection(
+            'invoiceLines',
+            $dataProvider,
+            null // Or your PDFPageSettings object if applicable
+        );
+
+        // 4. Use the section in your report generation logic
+        $invoiceLinesSection->ExecuteQuery();
+
+        while (!$invoiceLinesSection->EndOfData()) {
+            $row = $invoiceLinesSection->row; // Get the current row data
+            // Render the row in your PDF using TCPDF
+            $pdf->Text(10, $invoiceLinesSection->CurrentY(), 'Product: ' . $row['product_name'] . ', Qty: ' . $row['quantity']);
+            $invoiceLinesSection->NextRecord();
+
+            if ($invoiceLinesSection->EndOfPage() && !$invoiceLinesSection->EndOfData()) {
+                $pdf->AddPage();
+                $invoiceLinesSection->ResetPageBreak();
+                // You might need to adjust Y position for the new page start
+            }
+        }
+
+        return $pdf;
+    }
+}

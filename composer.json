@@ -1,0 +1,26 @@
+{
+    "name": "alienproject/pdfreport",
+    "description": "A library that allows you to generate PDF reports from an XML template describing the document, with placeholders for data",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Alien Project Team",
+            "email": "contact@alienproject.org"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "tecnickcom/tcpdf": "^6.9"
+    },
+    "autoload": {
+        "psr-4": {
+            "AlienProject\\PdfReport\\": "pages/pdfreport/"
+        },
+        "classmap": [
+            "pages/pdfreport/"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
