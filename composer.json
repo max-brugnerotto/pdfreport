@@ -17,10 +17,7 @@
     "autoload": {
         "psr-4": {
             "AlienProject\\PdfReport\\": "src/"
-        },
-        "classmap": [
-            "pages/pdfreport/"
-        ]
+        }
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
