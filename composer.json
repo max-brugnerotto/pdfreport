@@ -2,7 +2,8 @@
     "name": "alienproject/pdfreport",
     "description": "A library that allows you to generate PDF reports from an XML template describing the document, with placeholders for data",
     "type": "library",
-    "license": "MIT",
+    "license": "LGPL-3.0-or-later",
+	"version": "1.0.0",
     "authors": [
         {
             "name": "Alien Project Team",
@@ -15,12 +16,14 @@
     },
     "autoload": {
         "psr-4": {
-            "AlienProject\\PdfReport\\": "pages/pdfreport/"
+            "AlienProject\\PdfReport\\": "src/"
         },
         "classmap": [
             "pages/pdfreport/"
         ]
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "keywords": ["pdf", "report", "xml", "tcpdf", "alienproject", "template"],
+    "homepage": "https://github.com/max-brugnerotto/pdfreport"
 }
